@@ -59,8 +59,8 @@ public class RecipeServiceImpl implements RecipeService {
             newRecipe.setDescription(recipe.getDescription() != null ? recipe.getDescription().trim() : null);
             newRecipe.setIngredients(recipe.getIngredients());
             
-            // Set up the relationship
-            category.addRecipe(newRecipe);
+            // Set the category properly
+            newRecipe.setCategory(category);
             
             // Save the recipe
             Recipe savedRecipe = recipeRepository.save(newRecipe);

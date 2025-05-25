@@ -4,6 +4,8 @@ import com.recipeplatform.model.Category;
 import com.recipeplatform.repository.CategoryRepository;
 import com.recipeplatform.repository.RecipeRepository;
 import com.recipeplatform.service.CategoryService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,6 +15,7 @@ import java.util.Optional;
 
 @Service
 public class CategoryServiceImpl implements CategoryService {
+    private static final Logger logger = LoggerFactory.getLogger(CategoryServiceImpl.class);
 
     private final CategoryRepository categoryRepository;
     private final RecipeRepository recipeRepository;
@@ -25,7 +28,12 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public List<Category> getAllCategories() {
-        return categoryRepository.findAll();
+        logger.info("Fetching all categories from database");
+        List<Category> categories = categoryRepository.findAll();
+        logger.info("Found {} categories in database", categories.size());
+        categories.forEach(category -> 
+            logger.debug("Category found: id={}, name={}", category.getId(), category.getName()));
+        return categories;
     }
 
     @Override
@@ -36,6 +44,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     @Transactional
     public Category createCategory(Category category) {
+        logger.info("Creating new category: {}", category.getName());
         return categoryRepository.save(category);
     }
 
