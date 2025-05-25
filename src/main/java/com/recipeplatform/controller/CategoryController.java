@@ -214,7 +214,7 @@ public class CategoryController {
             categoryService.deleteCategory(id);
             logger.info("Successfully deleted category with id: {}", id);
             return ResponseEntity.ok()
-                .body(Map.of("message", "Category deleted successfully"));
+                .body(Map.of("message", "Category and all associated recipes deleted successfully"));
                 
         } catch (EntityNotFoundException e) {
             logger.error("Error deleting category - not found: {}", e.getMessage());

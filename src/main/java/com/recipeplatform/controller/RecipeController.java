@@ -178,21 +178,20 @@ public class RecipeController {
         }
     }
 
-    @Operation(summary = "Delete a recipe", description = "Delete a recipe by ID", security = @SecurityRequirement(name = "bearerAuth"))
+    @Operation(summary = "Delete a recipe", description = "Delete a recipe by ID")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Recipe deleted successfully"),
-        @ApiResponse(responseCode = "404", description = "Recipe not found"),
-        @ApiResponse(responseCode = "403", description = "Access denied")
+        @ApiResponse(responseCode = "404", description = "Recipe not found")
     })
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> deleteRecipe(
             @Parameter(description = "ID of the recipe to delete") @PathVariable Long id) {
         try {
             logger.debug("Deleting recipe with id: {}", id);
             recipeService.deleteRecipe(id);
             logger.debug("Deleted recipe with id: {}", id);
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok()
+                .body(Map.of("message", "Recipe deleted successfully"));
         } catch (EntityNotFoundException e) {
             logger.error("Error deleting recipe - not found: {}", e.getMessage());
             return ResponseEntity.notFound().build();
