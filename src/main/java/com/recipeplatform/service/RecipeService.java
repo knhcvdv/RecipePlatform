@@ -12,4 +12,5 @@ public interface RecipeService {
     void deleteRecipe(Long id);
     List<Recipe> searchByTitle(String title);
     List<Recipe> searchByIngredient(String ingredient);
+    List<Recipe> searchByTitleOrDescription(String query);
 } 

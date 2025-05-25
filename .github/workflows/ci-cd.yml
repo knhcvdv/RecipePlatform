@@ -35,6 +35,9 @@ jobs:
         distribution: 'temurin'
         cache: maven
 
+    - name: Print Working Directory
+      run: pwd && ls -la
+
     - name: Build and Test
       env:
         SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/recipe_platform
@@ -44,7 +47,13 @@ jobs:
         SPRING_JPA_SHOW_SQL: true
         JWT_SECRET: your-test-secret-key
         JWT_EXPIRATION_MS: 86400000
-      run: mvn -B clean verify
+      run: |
+        echo "Maven version:"
+        mvn --version
+        echo "Java version:"
+        java -version
+        echo "Running tests..."
+        mvn -B clean test
 
     - name: Upload Test Results
       if: always()

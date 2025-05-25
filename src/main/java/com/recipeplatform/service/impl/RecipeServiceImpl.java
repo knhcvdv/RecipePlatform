@@ -14,6 +14,8 @@ import javax.persistence.EntityNotFoundException;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class RecipeServiceImpl implements RecipeService {
@@ -149,5 +151,21 @@ public class RecipeServiceImpl implements RecipeService {
         List<Recipe> recipes = recipeRepository.findByIngredientsContainingIgnoreCase(ingredient);
         logger.info("Found {} recipes", recipes.size());
         return recipes;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Recipe> searchByTitleOrDescription(String query) {
+        logger.info("Searching recipes by title or description: {}", query);
+        List<Recipe> titleMatches = recipeRepository.findByTitleContainingIgnoreCase(query);
+        List<Recipe> descriptionMatches = recipeRepository.findByDescriptionContainingIgnoreCase(query);
+        
+        // Combine results and remove duplicates
+        List<Recipe> combinedResults = Stream.concat(titleMatches.stream(), descriptionMatches.stream())
+            .distinct()
+            .collect(Collectors.toList());
+            
+        logger.info("Found {} recipes", combinedResults.size());
+        return combinedResults;
     }
 } 

@@ -202,17 +202,36 @@ public class RecipeController {
         }
     }
 
-    @Operation(summary = "Search recipes", description = "Search recipes by title")
+    @Operation(summary = "Search recipes", description = "Search recipes by title, description or ingredients")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Successfully retrieved recipes",
                 content = @Content(schema = @Schema(implementation = Recipe.class)))
     })
     @GetMapping("/search")
-    public List<Recipe> searchRecipes(
-            @Parameter(description = "Title to search for") @RequestParam String title) {
-        logger.debug("Searching recipes with title containing: {}", title);
-        List<Recipe> recipes = recipeService.searchByTitle(title);
-        logger.debug("Found {} recipes matching search criteria", recipes.size());
-        return recipes;
+    public ResponseEntity<?> searchRecipes(
+            @Parameter(description = "Query to search in title and description") 
+            @RequestParam(required = false) String query,
+            @Parameter(description = "Ingredient to search for") 
+            @RequestParam(required = false) String ingredient) {
+        try {
+            logger.info("Searching recipes with query: {}, ingredient: {}", query, ingredient);
+            List<Recipe> recipes;
+            
+            if (ingredient != null && !ingredient.trim().isEmpty()) {
+                recipes = recipeService.searchByIngredient(ingredient);
+            } else if (query != null && !query.trim().isEmpty()) {
+                recipes = recipeService.searchByTitleOrDescription(query);
+            } else {
+                return ResponseEntity.badRequest()
+                    .body(Map.of("error", "Either query or ingredient parameter is required"));
+            }
+            
+            logger.info("Found {} recipes matching the search criteria", recipes.size());
+            return ResponseEntity.ok(recipes);
+        } catch (Exception e) {
+            logger.error("Error searching recipes: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of("error", "Failed to search recipes: " + e.getMessage()));
+        }
     }
 } 
