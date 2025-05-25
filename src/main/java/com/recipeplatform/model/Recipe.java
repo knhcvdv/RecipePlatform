@@ -2,6 +2,10 @@ package com.recipeplatform.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -12,6 +16,10 @@ import java.util.List;
 @Entity
 @Table(name = "recipes")
 @Schema(description = "Recipe entity representing a cooking recipe")
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Recipe {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,6 +41,7 @@ public class Recipe {
     @CollectionTable(name = "recipe_ingredients", joinColumns = @JoinColumn(name = "recipe_id"))
     @Column(name = "ingredient")
     @Schema(description = "List of ingredients for the recipe")
+    @Builder.Default
     private List<String> ingredients = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.EAGER)
@@ -40,68 +49,6 @@ public class Recipe {
     @JsonBackReference
     @Schema(description = "Category of the recipe")
     private Category category;
-
-    // Constructors
-    public Recipe() {}
-
-    public Recipe(String title, String description, List<String> ingredients, Category category) {
-        this.title = title;
-        this.description = description;
-        this.ingredients = ingredients;
-        this.category = category;
-    }
-
-    // Getters and setters
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public List<String> getIngredients() {
-        return ingredients;
-    }
-
-    public void setIngredients(List<String> ingredients) {
-        this.ingredients = ingredients;
-    }
-
-    public Category getCategory() {
-        return category;
-    }
-
-    public void setCategory(Category category) {
-        this.category = category;
-    }
-
-    @Override
-    public String toString() {
-        return "Recipe{" +
-                "id=" + id +
-                ", title='" + title + '\'' +
-                ", description='" + description + '\'' +
-                ", ingredients=" + ingredients +
-                ", categoryId=" + (category != null ? category.getId() : null) +
-                '}';
-    }
 
     public void validate() {
         if (title == null || title.trim().isEmpty()) {
