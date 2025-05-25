@@ -1,0 +1,8 @@
+{
+    "title": "Chocolate Cake",
+    "description": "Delicious chocolate cake recipe",
+    "ingredients": ["flour", "sugar", "eggs", "chocolate"],
+    "category": {
+        "id": 1
+    }
+} 

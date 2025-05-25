@@ -2,6 +2,7 @@ package com.recipeplatform.service;
 
 import com.recipeplatform.model.Category;
 import com.recipeplatform.repository.CategoryRepository;
+import com.recipeplatform.service.impl.CategoryServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -13,6 +14,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 class CategoryServiceTest {
@@ -21,66 +23,86 @@ class CategoryServiceTest {
     private CategoryRepository categoryRepository;
 
     @InjectMocks
-    private CategoryService categoryService;
+    private CategoryServiceImpl categoryService;
+
+    private Category testCategory;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+        
+        testCategory = new Category();
+        testCategory.setId(1L);
+        testCategory.setName("Test Category");
+        testCategory.setDescription("Test Description");
     }
 
     @Test
-    void getAllCategories_ShouldReturnListOfCategories() {
+    void getAllCategories_ShouldReturnList() {
         // Arrange
-        Category category1 = new Category();
-        category1.setId(1L);
-        category1.setName("Desserts");
-
-        Category category2 = new Category();
-        category2.setId(2L);
-        category2.setName("Main Course");
-
-        when(categoryRepository.findAll()).thenReturn(Arrays.asList(category1, category2));
+        when(categoryRepository.findAll()).thenReturn(Arrays.asList(testCategory));
 
         // Act
-        List<Category> categories = categoryService.getAllCategories();
+        List<Category> result = categoryService.getAllCategories();
 
         // Assert
-        assertEquals(2, categories.size());
-        verify(categoryRepository, times(1)).findAll();
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        verify(categoryRepository).findAll();
     }
 
     @Test
-    void getCategoryById_WhenCategoryExists_ShouldReturnCategory() {
+    void getCategoryById_WhenExists_ShouldReturnCategory() {
         // Arrange
-        Category category = new Category();
-        category.setId(1L);
-        category.setName("Desserts");
-
-        when(categoryRepository.findById(1L)).thenReturn(Optional.of(category));
+        when(categoryRepository.findById(1L)).thenReturn(Optional.of(testCategory));
 
         // Act
         Optional<Category> result = categoryService.getCategoryById(1L);
 
         // Assert
         assertTrue(result.isPresent());
-        assertEquals("Desserts", result.get().getName());
-        verify(categoryRepository, times(1)).findById(1L);
+        assertEquals(testCategory.getName(), result.get().getName());
+        verify(categoryRepository).findById(1L);
     }
 
     @Test
     void createCategory_ShouldReturnSavedCategory() {
         // Arrange
-        Category category = new Category();
-        category.setName("Desserts");
-
-        when(categoryRepository.save(any(Category.class))).thenReturn(category);
+        when(categoryRepository.save(any(Category.class))).thenReturn(testCategory);
 
         // Act
-        Category savedCategory = categoryService.createCategory(category);
+        Category result = categoryService.createCategory(testCategory);
 
         // Assert
-        assertNotNull(savedCategory);
-        assertEquals("Desserts", savedCategory.getName());
-        verify(categoryRepository, times(1)).save(category);
+        assertNotNull(result);
+        assertEquals(testCategory.getName(), result.getName());
+        verify(categoryRepository).save(any(Category.class));
+    }
+
+    @Test
+    void updateCategory_WhenExists_ShouldReturnUpdatedCategory() {
+        // Arrange
+        Category updatedCategory = new Category();
+        updatedCategory.setName("Updated Name");
+        when(categoryRepository.findById(1L)).thenReturn(Optional.of(testCategory));
+        when(categoryRepository.save(any(Category.class))).thenReturn(updatedCategory);
+
+        // Act
+        Optional<Category> result = categoryService.updateCategory(1L, updatedCategory);
+
+        // Assert
+        assertTrue(result.isPresent());
+        assertEquals(updatedCategory.getName(), result.get().getName());
+        verify(categoryRepository).findById(1L);
+        verify(categoryRepository).save(any(Category.class));
+    }
+
+    @Test
+    void deleteCategory_ShouldCallRepository() {
+        // Act
+        categoryService.deleteCategory(1L);
+
+        // Assert
+        verify(categoryRepository).deleteById(1L);
     }
 } 
