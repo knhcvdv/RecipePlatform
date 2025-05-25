@@ -40,7 +40,7 @@ public class RecipeServiceImpl implements RecipeService {
     public Optional<Recipe> updateRecipe(Long id, Recipe recipeDetails) {
         return recipeRepository.findById(id)
             .map(recipe -> {
-                recipe.setName(recipeDetails.getName());
+                recipe.setTitle(recipeDetails.getTitle());
                 recipe.setDescription(recipeDetails.getDescription());
                 recipe.setCategory(recipeDetails.getCategory());
                 recipe.setIngredients(recipeDetails.getIngredients());
@@ -55,8 +55,8 @@ public class RecipeServiceImpl implements RecipeService {
     }
 
     @Override
-    public List<Recipe> searchByName(String name) {
-        return recipeRepository.findByNameContainingIgnoreCase(name);
+    public List<Recipe> searchByTitle(String title) {
+        return recipeRepository.findByTitleContainingIgnoreCase(title);
     }
 
     @Override

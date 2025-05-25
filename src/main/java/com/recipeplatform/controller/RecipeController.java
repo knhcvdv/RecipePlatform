@@ -50,10 +50,10 @@ public class RecipeController {
 
     @GetMapping("/search")
     public List<Recipe> searchRecipes(
-            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String title,
             @RequestParam(required = false) String ingredient) {
-        if (name != null) {
-            return recipeService.searchByName(name);
+        if (title != null) {
+            return recipeService.searchByTitle(title);
         } else if (ingredient != null) {
             return recipeService.searchByIngredient(ingredient);
         }

@@ -2,7 +2,6 @@ package com.recipeplatform.service;
 
 import com.recipeplatform.model.Recipe;
 import com.recipeplatform.model.Category;
-import com.recipeplatform.model.User;
 import com.recipeplatform.repository.RecipeRepository;
 import com.recipeplatform.service.impl.RecipeServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -43,11 +42,6 @@ public class RecipeServiceTest {
         category.setId(1L);
         category.setName("Test Category");
         testRecipe.setCategory(category);
-        
-        User author = new User();
-        author.setId(1L);
-        author.setUsername("testUser");
-        testRecipe.setAuthor(author);
     }
 
     @Test
@@ -65,10 +59,10 @@ public class RecipeServiceTest {
     void getRecipeById_ShouldReturnRecipe() {
         when(recipeRepository.findById(1L)).thenReturn(Optional.of(testRecipe));
 
-        Recipe foundRecipe = recipeService.getRecipeById(1L);
+        Optional<Recipe> foundRecipe = recipeService.getRecipeById(1L);
 
-        assertNotNull(foundRecipe);
-        assertEquals(testRecipe.getId(), foundRecipe.getId());
+        assertTrue(foundRecipe.isPresent());
+        assertEquals(testRecipe.getId(), foundRecipe.get().getId());
         verify(recipeRepository).findById(1L);
     }
 
@@ -76,7 +70,8 @@ public class RecipeServiceTest {
     void getRecipeById_ShouldThrowException_WhenRecipeNotFound() {
         when(recipeRepository.findById(1L)).thenReturn(Optional.empty());
 
-        assertThrows(EntityNotFoundException.class, () -> recipeService.getRecipeById(1L));
+        Optional<Recipe> result = recipeService.getRecipeById(1L);
+        assertTrue(result.isEmpty());
         verify(recipeRepository).findById(1L);
     }
 
@@ -99,7 +94,7 @@ public class RecipeServiceTest {
         List<Recipe> recipes = Arrays.asList(testRecipe);
         when(recipeRepository.findByTitleContainingIgnoreCase(searchTitle)).thenReturn(recipes);
 
-        List<Recipe> foundRecipes = recipeService.searchRecipesByTitle(searchTitle);
+        List<Recipe> foundRecipes = recipeService.searchByTitle(searchTitle);
 
         assertNotNull(foundRecipes);
         assertFalse(foundRecipes.isEmpty());

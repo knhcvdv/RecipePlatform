@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Recipe Platform</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #recipeList {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Welcome to the Recipe Platform!</h1>
+    
+    <div class="form-group">
+        <h2>Create Category</h2>
+        <label for="categoryName">Category Name:</label>
+        <input type="text" id="categoryName" required>
+        <button onclick="createCategory()">Create Category</button>
+    </div>
+
+    <div class="form-group">
+        <h2>Create Recipe</h2>
+        <label for="recipeTitle">Title:</label>
+        <input type="text" id="recipeTitle" required>
+        
+        <label for="recipeDescription">Description:</label>
+        <textarea id="recipeDescription" rows="4" required></textarea>
+        
+        <label for="recipeIngredients">Ingredients (comma-separated):</label>
+        <input type="text" id="recipeIngredients" placeholder="flour, sugar, eggs">
+        
+        <label for="recipeCategory">Category:</label>
+        <input type="text" id="recipeCategory" required>
+        
+        <button onclick="createRecipe()">Create Recipe</button>
+    </div>
+
+    <div id="recipeList">
+        <h2>Recipes</h2>
+        <button onclick="loadRecipes()">Refresh Recipes</button>
+        <div id="recipes"></div>
+    </div>
+
+    <script>
+        function createCategory() {
+            const name = document.getElementById('categoryName').value;
+            fetch('/api/categories', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ name: name })
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert('Category created successfully!');
+                document.getElementById('categoryName').value = '';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error creating category');
+            });
+        }
+
+        function createRecipe() {
+            const title = document.getElementById('recipeTitle').value;
+            const description = document.getElementById('recipeDescription').value;
+            const ingredients = document.getElementById('recipeIngredients').value.split(',').map(i => i.trim());
+            const categoryName = document.getElementById('recipeCategory').value;
+
+            const recipe = {
+                title: title,
+                description: description,
+                ingredients: ingredients,
+                category: {
+                    name: categoryName
+                }
+            };
+
+            fetch('/api/recipes', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(recipe)
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert('Recipe created successfully!');
+                loadRecipes();
+                // Clear form
+                document.getElementById('recipeTitle').value = '';
+                document.getElementById('recipeDescription').value = '';
+                document.getElementById('recipeIngredients').value = '';
+                document.getElementById('recipeCategory').value = '';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error creating recipe');
+            });
+        }
+
+        function loadRecipes() {
+            fetch('/api/recipes')
+            .then(response => response.json())
+            .then(recipes => {
+                const recipesDiv = document.getElementById('recipes');
+                recipesDiv.innerHTML = '';
+                recipes.forEach(recipe => {
+                    const recipeElement = document.createElement('div');
+                    recipeElement.innerHTML = `
+                        <h3>${recipe.title}</h3>
+                        <p>${recipe.description}</p>
+                        <p><strong>Category:</strong> ${recipe.category ? recipe.category.name : 'N/A'}</p>
+                        <p><strong>Ingredients:</strong> ${recipe.ingredients.join(', ')}</p>
+                        <hr>
+                    `;
+                    recipesDiv.appendChild(recipeElement);
+                });
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error loading recipes');
+            });
+        }
+
+        // Load recipes when page loads
+        loadRecipes();
+    </script>
+</body>
+</html> 
