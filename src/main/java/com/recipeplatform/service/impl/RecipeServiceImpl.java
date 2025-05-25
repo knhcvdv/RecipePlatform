@@ -123,16 +123,14 @@ public class RecipeServiceImpl implements RecipeService {
     @Transactional
     public void deleteRecipe(Long id) {
         logger.info("Deleting recipe with ID: {}", id);
-        recipeRepository.findById(id).ifPresent(recipe -> {
-            try {
-                recipe.getCategory().removeRecipe(recipe);
-                recipeRepository.delete(recipe);
-                logger.info("Deleted recipe with ID: {}", id);
-            } catch (Exception e) {
-                logger.error("Error deleting recipe", e);
-                throw new RuntimeException("Failed to delete recipe: " + e.getMessage(), e);
-            }
-        });
+        
+        if (!recipeRepository.existsById(id)) {
+            logger.warn("Recipe not found with id: {}", id);
+            return;
+        }
+        
+        recipeRepository.deleteById(id);
+        logger.info("Deleted recipe with ID: {}", id);
     }
 
     @Override

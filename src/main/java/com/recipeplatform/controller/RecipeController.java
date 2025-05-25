@@ -222,8 +222,7 @@ public class RecipeController {
             } else if (query != null && !query.trim().isEmpty()) {
                 recipes = recipeService.searchByTitleOrDescription(query);
             } else {
-                return ResponseEntity.badRequest()
-                    .body(Map.of("error", "Either query or ingredient parameter is required"));
+                recipes = recipeService.getAllRecipes();
             }
             
             logger.info("Found {} recipes matching the search criteria", recipes.size());

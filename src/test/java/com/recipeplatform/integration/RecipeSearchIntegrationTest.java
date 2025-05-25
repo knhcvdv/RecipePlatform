@@ -63,7 +63,6 @@ class RecipeSearchIntegrationTest extends BaseIntegrationTest {
     }
 
     @Test
-    @WithMockUser
     void searchByTitle_ExactMatch() throws Exception {
         mockMvc.perform(get("/api/recipes/search")
                 .param("query", "Борщ український")
@@ -75,7 +74,6 @@ class RecipeSearchIntegrationTest extends BaseIntegrationTest {
     }
 
     @Test
-    @WithMockUser
     void searchByTitle_PartialMatch() throws Exception {
         mockMvc.perform(get("/api/recipes/search")
                 .param("query", "вареники")
@@ -87,7 +85,6 @@ class RecipeSearchIntegrationTest extends BaseIntegrationTest {
     }
 
     @Test
-    @WithMockUser
     void searchByIngredient_SingleIngredient() throws Exception {
         mockMvc.perform(get("/api/recipes/search")
                 .param("ingredient", "буряк")
@@ -99,7 +96,6 @@ class RecipeSearchIntegrationTest extends BaseIntegrationTest {
     }
 
     @Test
-    @WithMockUser
     void searchByIngredient_CommonIngredient() throws Exception {
         mockMvc.perform(get("/api/recipes/search")
                 .param("ingredient", "картопля")
@@ -110,7 +106,6 @@ class RecipeSearchIntegrationTest extends BaseIntegrationTest {
     }
 
     @Test
-    @WithMockUser
     void searchByDescription_PartialMatch() throws Exception {
         mockMvc.perform(get("/api/recipes/search")
                 .param("query", "традиційний український")
@@ -122,7 +117,6 @@ class RecipeSearchIntegrationTest extends BaseIntegrationTest {
     }
 
     @Test
-    @WithMockUser
     void searchWithNoResults() throws Exception {
         mockMvc.perform(get("/api/recipes/search")
                 .param("query", "неіснуючий рецепт")

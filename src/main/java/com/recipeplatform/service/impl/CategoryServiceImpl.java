@@ -64,23 +64,11 @@ public class CategoryServiceImpl implements CategoryService {
     public void deleteCategory(Long id) {
         logger.info("Deleting category with id: {}", id);
         
-        Optional<Category> categoryOpt = categoryRepository.findById(id);
-        if (!categoryOpt.isPresent()) {
+        if (!categoryRepository.existsById(id)) {
             logger.warn("Category not found with id: {}", id);
-            throw new RuntimeException("Category not found with id: " + id);
+            return;
         }
         
-        Category category = categoryOpt.get();
-        logger.info("Found category: {} with {} recipes", category.getName(), category.getRecipes().size());
-        
-        // First delete all recipes in this category
-        if (!category.getRecipes().isEmpty()) {
-            logger.info("Deleting {} recipes in category {}", category.getRecipes().size(), category.getName());
-            recipeRepository.deleteByCategory(category);
-            logger.info("Deleted all recipes in category {}", category.getName());
-        }
-        
-        // Then delete the category
         categoryRepository.deleteById(id);
         logger.info("Successfully deleted category with id: {}", id);
     }

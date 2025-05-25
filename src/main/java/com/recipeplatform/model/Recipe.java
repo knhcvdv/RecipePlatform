@@ -59,8 +59,8 @@ public class Recipe {
             throw new IllegalArgumentException("Recipe category is required");
         }
         
-        if (ingredients == null || ingredients.isEmpty()) {
-            throw new IllegalArgumentException("Recipe must have at least one ingredient");
+        if (ingredients == null) {
+            ingredients = new ArrayList<>();
         }
     }
 } 
