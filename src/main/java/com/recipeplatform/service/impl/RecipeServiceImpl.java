@@ -45,31 +45,18 @@ public class RecipeServiceImpl implements RecipeService {
     public Recipe createRecipe(Recipe recipe) {
         logger.info("Creating recipe: {}", recipe);
         
-        if (recipe == null) {
-            throw new IllegalArgumentException("Recipe cannot be null");
-        }
-        
-        if (recipe.getTitle() == null || recipe.getTitle().trim().isEmpty()) {
-            throw new IllegalArgumentException("Recipe title is required");
-        }
-        
-        if (recipe.getCategory() == null || recipe.getCategory().getId() == null) {
-            throw new IllegalArgumentException("Recipe category is required");
-        }
-        
-        if (recipe.getIngredients() == null || recipe.getIngredients().isEmpty()) {
-            throw new IllegalArgumentException("Recipe must have at least one ingredient");
-        }
-        
         try {
+            // Validate recipe
+            recipe.validate();
+            
             // Load the category
             Category category = categoryRepository.findById(recipe.getCategory().getId())
                 .orElseThrow(() -> new EntityNotFoundException("Category not found with id: " + recipe.getCategory().getId()));
             
             // Create a new recipe instance to avoid any potential attached entities
             Recipe newRecipe = new Recipe();
-            newRecipe.setTitle(recipe.getTitle());
-            newRecipe.setDescription(recipe.getDescription());
+            newRecipe.setTitle(recipe.getTitle().trim());
+            newRecipe.setDescription(recipe.getDescription() != null ? recipe.getDescription().trim() : null);
             newRecipe.setIngredients(recipe.getIngredients());
             
             // Set up the relationship
@@ -83,6 +70,9 @@ public class RecipeServiceImpl implements RecipeService {
         } catch (EntityNotFoundException e) {
             logger.error("Category not found: {}", e.getMessage());
             throw e;
+        } catch (IllegalArgumentException e) {
+            logger.error("Validation error: {}", e.getMessage());
+            throw e;
         } catch (Exception e) {
             logger.error("Error creating recipe", e);
             throw new RuntimeException("Failed to create recipe: " + e.getMessage(), e);
@@ -94,28 +84,37 @@ public class RecipeServiceImpl implements RecipeService {
     public Optional<Recipe> updateRecipe(Long id, Recipe recipeDetails) {
         logger.info("Updating recipe with ID {}: {}", id, recipeDetails);
         
-        return recipeRepository.findById(id)
-            .map(recipe -> {
-                // Update category if changed
-                if (recipeDetails.getCategory() != null && 
-                    !recipe.getCategory().getId().equals(recipeDetails.getCategory().getId())) {
+        try {
+            // Validate the update data
+            recipeDetails.validate();
+            
+            return recipeRepository.findById(id)
+                .map(recipe -> {
+                    // Update category if changed
+                    if (recipeDetails.getCategory() != null && 
+                        !recipe.getCategory().getId().equals(recipeDetails.getCategory().getId())) {
+                        
+                        Category newCategory = categoryRepository.findById(recipeDetails.getCategory().getId())
+                            .orElseThrow(() -> new EntityNotFoundException("Category not found with id: " + 
+                                recipeDetails.getCategory().getId()));
+                        
+                        recipe.getCategory().removeRecipe(recipe);
+                        newCategory.addRecipe(recipe);
+                    }
                     
-                    Category newCategory = categoryRepository.findById(recipeDetails.getCategory().getId())
-                        .orElseThrow(() -> new EntityNotFoundException("Category not found with id: " + 
-                            recipeDetails.getCategory().getId()));
+                    recipe.setTitle(recipeDetails.getTitle().trim());
+                    recipe.setDescription(recipeDetails.getDescription() != null ? 
+                        recipeDetails.getDescription().trim() : null);
+                    recipe.setIngredients(recipeDetails.getIngredients());
                     
-                    recipe.getCategory().removeRecipe(recipe);
-                    newCategory.addRecipe(recipe);
-                }
-                
-                recipe.setTitle(recipeDetails.getTitle());
-                recipe.setDescription(recipeDetails.getDescription());
-                recipe.setIngredients(recipeDetails.getIngredients());
-                
-                Recipe updatedRecipe = recipeRepository.save(recipe);
-                logger.info("Updated recipe: {}", updatedRecipe);
-                return updatedRecipe;
-            });
+                    Recipe updatedRecipe = recipeRepository.save(recipe);
+                    logger.info("Updated recipe: {}", updatedRecipe);
+                    return updatedRecipe;
+                });
+        } catch (Exception e) {
+            logger.error("Error updating recipe", e);
+            throw new RuntimeException("Failed to update recipe: " + e.getMessage(), e);
+        }
     }
 
     @Override
@@ -123,9 +122,14 @@ public class RecipeServiceImpl implements RecipeService {
     public void deleteRecipe(Long id) {
         logger.info("Deleting recipe with ID: {}", id);
         recipeRepository.findById(id).ifPresent(recipe -> {
-            recipe.getCategory().removeRecipe(recipe);
-            recipeRepository.delete(recipe);
-            logger.info("Deleted recipe with ID: {}", id);
+            try {
+                recipe.getCategory().removeRecipe(recipe);
+                recipeRepository.delete(recipe);
+                logger.info("Deleted recipe with ID: {}", id);
+            } catch (Exception e) {
+                logger.error("Error deleting recipe", e);
+                throw new RuntimeException("Failed to delete recipe: " + e.getMessage(), e);
+            }
         });
     }
 
