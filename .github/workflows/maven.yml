@@ -18,23 +18,9 @@ jobs:
       with:
         java-version: '11'
         distribution: 'temurin'
+        cache: 'maven'
     
-    - name: Cache Maven packages
-      uses: actions/cache@v3
-      with:
-        path: ~/.m2
-        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-        restore-keys: ${{ runner.os }}-m2
-    
-    - name: Build with Maven
-      run: mvn -B package --file pom.xml
-    
-    - name: Test with Maven
-      run: mvn test
-      
-    - name: Upload test results
-      if: always()
-      uses: actions/upload-artifact@v3
-      with:
-        name: test-results
-        path: target/surefire-reports/ 
+    - name: Build and Test
+      run: |
+        mvn -B clean verify
+        mvn test 
