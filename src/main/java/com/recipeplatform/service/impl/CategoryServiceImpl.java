@@ -1,14 +1,14 @@
-package com.recipe.platform.service.impl;
+package com.recipeplatform.service.impl;
 
-import com.recipe.platform.model.Category;
-import com.recipe.platform.repository.CategoryRepository;
-import com.recipe.platform.service.CategoryService;
-import jakarta.persistence.EntityNotFoundException;
+import com.recipeplatform.model.Category;
+import com.recipeplatform.repository.CategoryRepository;
+import com.recipeplatform.service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class CategoryServiceImpl implements CategoryService {
@@ -26,9 +26,8 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public Category getCategoryById(Long id) {
-        return categoryRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Category not found with id: " + id));
+    public Optional<Category> getCategoryById(Long id) {
+        return categoryRepository.findById(id);
     }
 
     @Override
@@ -39,19 +38,18 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     @Transactional
-    public Category updateCategory(Long id, Category category) {
-        Category existingCategory = getCategoryById(id);
-        existingCategory.setName(category.getName());
-        existingCategory.setDescription(category.getDescription());
-        return categoryRepository.save(existingCategory);
+    public Optional<Category> updateCategory(Long id, Category categoryDetails) {
+        return categoryRepository.findById(id)
+            .map(category -> {
+                category.setName(categoryDetails.getName());
+                category.setDescription(categoryDetails.getDescription());
+                return categoryRepository.save(category);
+            });
     }
 
     @Override
     @Transactional
     public void deleteCategory(Long id) {
-        if (!categoryRepository.existsById(id)) {
-            throw new EntityNotFoundException("Category not found with id: " + id);
-        }
         categoryRepository.deleteById(id);
     }
 } 

@@ -1,23 +1,21 @@
-package com.recipe.platform.model;
+package com.recipeplatform.model;
 
-import jakarta.persistence.*;
+import javax.persistence.*;
 import lombok.Data;
-import java.util.List;
+import lombok.NoArgsConstructor;
 
-@Data
 @Entity
 @Table(name = "categories")
+@Data
+@NoArgsConstructor
 public class Category {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(nullable = false, unique = true)
+    
+    @Column(nullable = false)
     private String name;
-
+    
     @Column
     private String description;
-
-    @OneToMany(mappedBy = "category")
-    private List<Recipe> recipes;
 } 

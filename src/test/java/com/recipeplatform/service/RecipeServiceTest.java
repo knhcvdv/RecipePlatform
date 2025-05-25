@@ -1,16 +1,16 @@
-package com.recipe.platform.service;
+package com.recipeplatform.service;
 
-import com.recipe.platform.model.Recipe;
-import com.recipe.platform.model.Category;
-import com.recipe.platform.model.User;
-import com.recipe.platform.repository.RecipeRepository;
-import com.recipe.platform.service.impl.RecipeServiceImpl;
+import com.recipeplatform.model.Recipe;
+import com.recipeplatform.model.Category;
+import com.recipeplatform.model.User;
+import com.recipeplatform.repository.RecipeRepository;
+import com.recipeplatform.service.impl.RecipeServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import jakarta.persistence.EntityNotFoundException;
+import javax.persistence.EntityNotFoundException;
 
 import java.util.Arrays;
 import java.util.List;
